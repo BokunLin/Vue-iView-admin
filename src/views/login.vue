@@ -13,8 +13,9 @@
 						<Icon type="locked" slot="prepend"></Icon>
 					</i-input>
 				</i-form-item>
-				<i-form-item>
-					<i-button type="primary" long @click="login">登录</i-button>
+				<i-form-item style="text-align:right;">
+					<i-button type="primary" long @click="login" :loading="loading" v-text="!isSignup ? '登录' : '注册'"></i-button>
+					<i-button type="text" size="mini" @click="signup" v-text="!isSignup ? '注册一个？' : '返回登录'"></i-button>
 				</i-form-item>
 			</i-form>
 		</i-card>
@@ -25,6 +26,8 @@
 export default {
 	data() {
 		return {
+			loading: false,
+			isSignup: false,
 			formData: {
 				user: '',
 				pw: ''
@@ -61,20 +64,29 @@ export default {
 				if (valid) {
 					//* 启动加载条
 					this.$Loading.start();
+					this.loading = true;
 					//* 向仓库派发事件
-					this.$store.dispatch('pression/login', this.formData).then(() => {
-						//* 登录成功，打印信息、结束进度条并且跳转页面
-						this.$Message.success('login success!');
+					this.$store.dispatch('pression/login', { data: this.formData, isSignup: this.isSignup }).then(() => {
+						//* 登录/注册成功，打印信息、结束进度条并且跳转页面
+						this.$Message.success(' success!');
 						this.$Loading.finish();
 						this.$router.push('/index');
 					}).catch(err => {
 						this.$Message.error(err);
+						this.loading = false;
 						this.$Loading.error();
 					})
 				} else {
 					this.$Message.error('input is not valid!');
 				}
 			});
+		},
+		signup() {
+			this.formData = {
+				user: '',
+				pw: ''
+			}
+			this.isSignup = !this.isSignup;
 		}
 	}
 };
@@ -87,7 +99,7 @@ $bgColor: #2d3a4b;
   height: 100%;
   background: $bgColor url("/static/login_bg.jpg") 0 0/cover no-repeat;
   h2 {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
   .ivu-card {
     position: fixed;
@@ -95,6 +107,9 @@ $bgColor: #2d3a4b;
     width: 320px;
     top: 50%;
     transform: translateY(-70%);
+		.ivu-card-body {
+			padding-bottom: 0px;
+		}
   }
   .ivu-form-item {
     margin-bottom: 20px;

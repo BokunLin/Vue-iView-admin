@@ -6,14 +6,17 @@ import router from './router'
 //* 引入 iView 框架
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
+//* Vuex
+import store from './store/index'
 
 Vue.config.productionTip = false
 Vue.use(iView);
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  router,
-  template: '<App/>',
-  components: { App }
+	el: '#app',
+	router,
+	store,
+	template: '<App/>',
+	components: { App }
 })

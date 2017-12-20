@@ -13,6 +13,6 @@ export default new VueX.Store({
 	modules: {
 		pression
 	},
-	strict: dug
+	strict: debug
 })
 
