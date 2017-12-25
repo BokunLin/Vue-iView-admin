@@ -9,13 +9,15 @@ const getters = {
 }
 
 const actions = {
-	login: ({ commit }, data) => new Promise((reslove, reject) => {
+	login: ({ commit }, data) => new Promise((resolve, reject) => {
 		login(data).then(response => {
-			if (response.data.code === 4004) {
-				reject(response.data.msg);
-			} else {
+			console.log('response', response)
+			if (response.data.code === 2000) {
 				commit('login', response.data.data);
-				resolve();
+				sessionStorage.user = response.data.data.name;
+				resolve(response.data.msg);
+			} else {
+				reject(response.data.msg);
 			}
 		})
 	})

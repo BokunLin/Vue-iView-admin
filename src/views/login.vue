@@ -1,10 +1,10 @@
 <template>
-	<div class="login">
+	<div class="login" @keyup.enter="login">
 		<i-card>
 			<h2>欢迎登录</h2>
 			<i-form ref="loginForm" :model="formData" :rules="rules">
-				<i-form-item prop="user">
-					<i-input v-model="formData.user">
+				<i-form-item prop="name">
+					<i-input v-model="formData.name">
 						<Icon type="person" slot="prepend"></Icon>
 					</i-input>
 				</i-form-item>
@@ -15,7 +15,7 @@
 				</i-form-item>
 				<i-form-item style="text-align:right;">
 					<i-button type="primary" long @click="login" :loading="loading" v-text="!isSignup ? '登录' : '注册'"></i-button>
-					<i-button type="text" size="mini" @click="signup" v-text="!isSignup ? '注册一个？' : '返回登录'"></i-button>
+					<i-button type="text" size="small" @click="signup" v-text="!isSignup ? '注册一个？' : '返回登录'"></i-button>
 				</i-form-item>
 			</i-form>
 		</i-card>
@@ -29,7 +29,7 @@ export default {
 			loading: false,
 			isSignup: false,
 			formData: {
-				user: '',
+				name: '',
 				pw: ''
 			},
 			rules: {
@@ -66,9 +66,9 @@ export default {
 					this.$Loading.start();
 					this.loading = true;
 					//* 向仓库派发事件
-					this.$store.dispatch('pression/login', { data: this.formData, isSignup: this.isSignup }).then(() => {
+					this.$store.dispatch('pression/login', { name: this.formData.name, pw: this.formData.pw, isSignup: this.isSignup }).then(res => {
 						//* 登录/注册成功，打印信息、结束进度条并且跳转页面
-						this.$Message.success(' success!');
+						this.$Message.success(res);
 						this.$Loading.finish();
 						this.$router.push('/index');
 					}).catch(err => {
