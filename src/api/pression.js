@@ -10,3 +10,7 @@ export function login({ name, pw, isSignup }) {
 		pw
 	})
 }
+
+export function checkLogin(user) {
+	return axios.post('/api/admin/checkLogin', { user });
+}

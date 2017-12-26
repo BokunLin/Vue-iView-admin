@@ -3,17 +3,17 @@
 		<i-row type="flex" class="index">
 			<!-- 左边部分 -->
 			<i-col :span="spanLeft" class="navBar">
-				<i-menu theme="dark" active-name="0" width="auto" @on-select="jumpRoute">
+				<i-menu theme="dark" :active-name="menuActiveName" width="auto" @on-select="jumpRoute">
 					<!-- logo -->
 					<div class="logo">
 						<span>{{title}}</span>
 					</div>
 					<!-- 侧边栏路由 -->
-					<i-menu-item v-if="!route.meta.hidden" v-for="(route, index) in routers" :name="index" :key="route.meta.path" :class="{ 'active' : !isOpen }">
-						<Tooltip :content="route.meta.label" placement="right" :disabled="isOpen">
+					<i-menu-item v-if="!route.meta.hidden" v-for="(route, index) in routers" :name="route.path" :key="route.meta.path" :class="{ 'active' : !isOpen }">
+						<Tooltip theme="" :content="route.meta.label" placement="right" :disabled="isOpen">
 							<p :style="pWidth">
 								<Icon :class="{'active' : !isOpen}" :type="route.meta.icon" :size="iconSize"></Icon>
-								<span>{{route.meta.label}}</span>
+								<span v-show="isOpen">{{route.meta.label}}</span>
 							</p>
 						</Tooltip>
 					</i-menu-item>
@@ -24,16 +24,12 @@
 				<div class="nav">
 					<!-- 侧边栏开关 -->
 					<span class="openButton">
-						<i-button type="text" @click.top="isOpen = !isOpen">
+						<i-button type="text" @click.stop="isOpen = !isOpen">
 							<Icon type="navicon" size="30" :class="{ 'active': !isOpen }"></Icon>
 						</i-button>
 					</span>
 					<!-- 标签组 -->
-					<span class="tags" ref="screenWidth">
-						<div id="tagList" ref="tagsWidth" @wheel="wheelTags" :style="{ transform: `translateX(${tagsData.translateX}px)` }">
-							<i-tag @click="$router.push(`/index/${tag.path}`)" v-for="tag in tags" :key="tag.path" closable :color="judgmentPath(tag.path)" type="dot">{{tag.label}}</i-tag>
-						</div>
-					</span>
+					<tag-pages :tagsActive.sync="tagsActive" :tags="tags"></tag-pages>
 					<!-- 头像 -->
 					<span class="avatar">
 						<i-dropdown placement="bottom">
@@ -50,7 +46,7 @@
 				</div>
 				<!-- 主要内容 -->
 				<i-row type="flex">
-					<i-col>
+					<i-col span="24">
 						<div class="viewArea">
 							<router-view></router-view>
 						</div>
@@ -61,19 +57,37 @@
 	</div>
 </template>
 <script>
+import tagPages from '@/components/index/tagPages'
 export default {
 	data() {
 		return {
+			menuActiveName: 'user',			//* 当前导航名
 			isOpen: true,										//* 是否展开侧边栏
 			routers: [],										//* 侧边栏路由
-			tagsData: {											//* 标签数据
-				screenWidth: 0, 							//* 屏幕显示宽度
-				tagsWidth: 0,									//* 标签实际宽度
-				translateX: 0									//* 偏移数量
-			},
-			tags: [],												//* 标签数组
+			tagsActive: 0,									//* 当前标签页
+			tags: [
+				{
+					path: 'user',
+					label: '用户管理'
+				}
+			],												//* 标签数组
 			username: sessionStorage.user		//* 用户名
 		};
+	},
+	components: {
+		tagPages
+	},
+	watch: {
+		$route(route) {
+			//* 同步标签
+			this.tags.forEach((el, index) => {
+				if (el.path === route.name) {
+					this.tagsActive = index;
+				}
+			})
+			//* 同步侧面栏
+			this.menuActiveName = route.name;
+		}
 	},
 	computed: {
 		//* 左部侧边栏宽度
@@ -105,42 +119,27 @@ export default {
 		judgmentPath(path) {
 			return this.$route.path.substr(7) === path ? 'blue' : 'default';
 		},
-		//* 滚动标签
-		wheelTags(e) {
-			const { tagsWidth, screenWidth, translateX } = this.tagsData;
-			if (tagsWidth - screenWidth > translateX) {
-				if (
-					(translateX === 0 && e.deltaY > 80) ||
-          (tagsWidth - screenWidth < -translateX && e.deltaY < 80)
-				) { return; }
-				this.tagsData.translateX += e.deltaY > 80 ? 40 : -40;
-			}
-		},
 		//* 退出登录
 		loginOut() {
 			alert(123);
 		},
 		//* 跳转路由
-		jumpRoute(index) {
+		jumpRoute(routeName) {
 			try {
 				this.tags.forEach(el => {
-					if (el.path === this.routers[index].path) {
+					if (el.path === routeName) {
 						throw new Error();
 					}
 				})
 				this.tags.push({
-					label: this.routers[index].meta.label,
-					path: this.routers[index].path
+					label: this.routers.find(item => item.path === routeName).meta.label,
+					path: routeName
 				})
 				throw new Error();
-			} catch (error) {
-				this.$router.push(`/index/${this.routers[index].path}`)
+			} catch (tagsIndex) {
+				this.$router.push(`/index/${routeName}`);
 			}
 		}
-	},
-	mounted() {
-		this.tagsData.screenWidth = this.$refs.screenWidth.offsetWidth;
-		this.tagsData.tagsWidth = this.$refs.tagsWidth.offsetWidth;
 	},
 	created() {
 		this.routers = this.$router.options.routes[1].children;
@@ -178,6 +177,7 @@ export default {
         }
         .ivu-menu-item {
           height: 60px;
+					line-height: 36px;
           white-space: nowrap;
           font-size: 16px;
           p {
@@ -218,17 +218,6 @@ export default {
 				.ivu-dropdown {
 					margin-right: 5px;
 				}
-      }
-      .tags {
-        padding-left: 10px;
-        width: calc(100% - 190px);
-        overflow: hidden;
-        & > div {
-          float: left;
-          white-space: nowrap;
-          transform: translateX(0);
-          transition: transform 0.2s ease-out;
-        }
       }
       .openButton {
         box-shadow: 5px 0 10px #eee;
