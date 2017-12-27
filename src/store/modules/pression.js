@@ -11,23 +11,18 @@ const getters = {
 const actions = {
 	login: ({ commit }, data) => new Promise((resolve, reject) => {
 		login(data).then(response => {
-			if (response.data.code === 2000) {
-				commit('login', response.data.data);
-				sessionStorage.user = response.data.data.name;
-				resolve(response.data.msg);
-			} else {
-				reject(response.data.msg);
-			}
+			commit('login', response.data);
+			sessionStorage.user = response.data.name;
+			resolve(response.msg);
+		}).catch(err => {
+			reject(err.msg);
 		})
 	}),
 	checkLogin: (context, user) => new Promise((resolve, reject) => {
 		checkLogin(user).then(res => {
-			console.log('res', res)
-			if (res.data.code === 2000) {
-				resolve();
-			} else {
-				reject();
-			}
+			resolve(res.msg);
+		}).catch(err => {
+			reject(err.msg);
 		})
 	})
 }

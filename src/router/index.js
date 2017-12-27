@@ -15,7 +15,6 @@ import order from '@/views/order'
 Vue.use(Router)
 
 const router = new Router({
-	mode: 'history',
 	routes: [
 		{
 			path: '/',

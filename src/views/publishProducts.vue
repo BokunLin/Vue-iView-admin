@@ -1,6 +1,6 @@
 <template>
 	<div class="publishProducts">
-		<i-form :model="formData" :rules="rules">
+		<i-form ref="products" :model="formData" :rules="rules">
 			<i-form-item label="商品名称：" prop="name">
 				<i-input placeholder="请输入商品名称" v-model="formData.name"></i-input>
 			</i-form-item>
@@ -24,14 +24,14 @@
 					<i-input placeholder="例如： ONE SIZE" v-model="item.label"></i-input>&nbsp;
 					<span v-text="index === 0 ? ' 商品库存：' : ''" class="formLabel"></span> <i-input placeholder="请输入商品库存" v-model="item.count"></i-input>
 					<i-button @click.stop="addStyle" v-if="index === formData.style.length - 1 && index !== 4">添加规格</i-button>
-					<i-button v-elst v-if="index !== 0" @click="deleteStyle(index)"> 删除</i-button>
+					<i-button v-if="index !== 0" @click="deleteStyle(index)"> 删除</i-button>
 				</div>
 			</i-form-item>
 			<i-form-item label="商品图片：" prop="imgs">
 				<upload-img :imgs.sync="formData.imgs"></upload-img>
 			</i-form-item>
 		</i-form>
-		<i-button type="success" class="sub">发布</i-button>
+		<i-button type="success" class="sub" @click.stop="subForm">发布</i-button>
 	</div>
 </template>
 
@@ -65,14 +65,35 @@ export default {
 				],
 				price: [
 					{ required: true, type: 'number', min: 1, message: '商品价格单位为分且只能为数字', trigger: 'blur' }
-				],
-				imgs: [
-					{ required: true, type: 'array', message: '商品图片至少为一张', trigger: 'change' }
 				]
 			}
 		}
 	},
 	methods: {
+		subForm() {
+			this.$refs.products.validate(valid => {
+				if (valid) {
+					if (this.checkStyle()) {
+						this.$Message.success('Success!');
+					}
+				} else {
+					this.$Message.error('Fail!');
+				}
+			})
+		},
+		checkStyle() {
+			for (let i = 0; i < this.formData.style.length; i++) {
+				if (this.formData.style[i].label === '' || this.formData.style[i].count === '') {
+					this.$Message.error('请完善规格信息！');
+					return false;
+				}
+			}
+			if (this.formData.imgs.length < 1) {
+				this.$Message.error('请至少上传一张图片！');
+				return false;
+			}
+			return true;
+		},
 		addStyle() {
 			if (this.formData.style.length === 5) {
 				return this.$Message.error('最多只能添加5种规格')

@@ -12,12 +12,13 @@ service.interceptors.request.use(config => config, error => Promise.reject(error
 // respone拦截器
 service.interceptors.response.use(
 	response => {
-		if (response.data.code === 5005) {
-			Message.error('登录超时，请重新登录');
-			sessionStorage.clear();
-			router.push('/');
+		const res = response.data
+
+		if (res.code !== 2000) {
+			return Promise.reject(res)
+		} else {
+			return res
 		}
-		return response;
 	},
 	error => Promise.reject(error)
 )
