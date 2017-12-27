@@ -1,16 +1,12 @@
 <template>
 	<div class="uploadImg">
-		<div class="demo-upload-list" v-for="item in uploadList">
-			<template v-if="item.status === 'finished'">
-					<img :src="item.url">
-					<div class="demo-upload-list-cover">
-							<Icon type="ios-eye-outline" @click.native="handleView(item.name)"></Icon>
-							<Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
-					</div>
-			</template>
-			<template v-else>
-					<Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
-			</template>
+		<div class="demo-upload-list" v-for="(item, index) in uploadList" :key="item.url">
+			<Spin size="small" class="loadingIcon"></Spin>
+			<img :src="item">
+			<div class="demo-upload-list-cover">
+					<Icon type="ios-eye-outline" @click.native="handleView(item)"></Icon>
+					<Icon type="ios-trash-outline" @click.native="handleRemove(index)"></Icon>
+			</div>
 		</div>
 		<Upload
 				ref="upload"
@@ -29,9 +25,8 @@
 						<Icon type="camera" size="20"></Icon>
 				</div>
 		</Upload>
-		<img src="http://kunine.oss-cn-shenzhen.aliyuncs.com/CapMall/000_meitu_1.jpg" alt="">
 		<Modal title="View Image" v-model="visible">
-				<img :src="'https://o5wwk8baw.qnssl.com/' + imgName + '/large'" v-if="visible" style="width: 100%">
+				<img :src="imgName" v-if="visible" style="width: 100%">
 		</Modal>
 	</div>
 </template>
@@ -40,19 +35,25 @@
 export default {
 	data() {
 		return {
-			defaultList: [
-				{
-					name: 'a42bdcc1178e62b4694c830f028db5c0',
-					url: 'http://kunine.oss-cn-shenzhen.aliyuncs.com/CapMall/%2Barbuz%2Bsinij%2Bfon%2Bpolovinka%2Bkostochki%2B15454017476.jpg?Expires=1514277287&OSSAccessKeyId=TMP.AQFEB1CfzH0qUVB0yFAH9aoNexgkZKHhPcYz2nil1jKw4--mtp383mM1dteWADAtAhQYcucn_E3H-wlwNYFRMabqMLMlSAIVAI2i7iqJwUbeTYK7P8CmMNt-8xDU&Signature=3O697zpxmA6JpW0eeRz3ZBEQjgs%3D'
-				},
-				{
-					name: 'bc7521e033abdd1e92222d733590f104',
-					url: 'https://o5wwk8baw.qnssl.com/bc7521e033abdd1e92222d733590f104/avatar'
-				}
-			],
+			showProgress: false,
+			percentage: 0,
 			imgName: '',
 			visible: false,
-			uploadList: []
+			uploadList: this.imgs
+		}
+	},
+	watch: {
+		uploadList: {
+			deep: true,
+			handler(val) {
+				this.$emit('update:imgs', val);
+			}
+		}
+	},
+	props: {
+		imgs: {
+			type: Array,
+			required: true
 		}
 	},
 	methods: {
@@ -60,18 +61,16 @@ export default {
 			this.imgName = name;
 			this.visible = true;
 		},
-		handleRemove(file) {
-			const fileList = this.$refs.upload.fileList;
-			this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+		handleRemove(index) {
+			this.uploadList.splice(index, 1);
 		},
-		handleSuccess(res, file) {
+		handleSuccess(res) {
 			if (res.code === 5005) {
 				this.$Message.error('请先登录');
 				sessionStorage.clear();
 				this.$router.push('/');
 			}
-			console.log('file', file)
-			console.log('res', res)
+			this.uploadList.push(res);
 		},
 		handleFormatError(file) {
 			this.$Notice.warning({
@@ -94,14 +93,18 @@ export default {
 			}
 			return check;
 		}
-	},
-	mounted() {
-		this.uploadList = this.$refs.upload.fileList;
 	}
 }
 </script>
 
 <style>
+.loadingIcon {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: -1;
+}
 .demo-upload-list{
 		display: inline-block;
 		width: 60px;

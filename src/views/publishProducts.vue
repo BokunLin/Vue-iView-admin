@@ -1,32 +1,37 @@
 <template>
 	<div class="publishProducts">
-		<i-form :model="formData" :label-width="80" :rules="rules">
-			<i-form-item label="商品名称" prop="name">
+		<i-form :model="formData" :rules="rules">
+			<i-form-item label="商品名称：" prop="name">
 				<i-input placeholder="请输入商品名称" v-model="formData.name"></i-input>
 			</i-form-item>
-			<i-form-item label="商品分类" prop="tags">
+			<i-form-item label="商品分类：" prop="tags">
 				<i-select placeholder="请选择商品分类" v-model="formData.tags">
 					<i-option v-if="tags.length === 0" value="">暂无分类，请先去分类管理添加分类!</i-option>
 					<i-option v-else v-for="tag in tags" :key="tag.value" :value="tag.value">{{tag.label}}</i-option>
 				</i-select>
 			</i-form-item>
-			<i-form-item label="商品价格" prop="price">
-				<i-input placeholder="请输入商品价格" v-model.number="formData.price">
+			<i-form-item label="商品介绍：" prop="intro">
+				<i-input placeholder="请输入商品介绍" v-model="formData.intro" type="textarea" :autosize="{minRows: 1,maxRows: 3}"></i-input>
+			</i-form-item>
+			<i-form-item label="商品价格：" prop="price">
+				<i-input placeholder="请输入商品价格" number v-model="formData.price">
 					<span slot="append">分</span>
 				</i-input>
 			</i-form-item>
-			<i-form-item label="商品介绍" prop="intro">
-				<i-input placeholder="请输入商品介绍" v-model="formData.intro" type="textarea" :autosize="{minRows: 1,maxRows: 3}"></i-input>
+			<i-form-item prop="style">
+				<div v-for="(item, index) in formData.style" :key="index" class="smallInput">
+					<span v-text="index === 0 ? ' 商品规格：' : ''" class="formLabel"></span>
+					<i-input placeholder="例如： ONE SIZE" v-model="item.label"></i-input>&nbsp;
+					<span v-text="index === 0 ? ' 商品库存：' : ''" class="formLabel"></span> <i-input placeholder="请输入商品库存" v-model="item.count"></i-input>
+					<i-button @click.stop="addStyle" v-if="index === formData.style.length - 1 && index !== 4">添加规格</i-button>
+					<i-button v-elst v-if="index !== 0" @click="deleteStyle(index)"> 删除</i-button>
+				</div>
 			</i-form-item>
-			<i-form-item label="商品库存" prop="count">
-				<i-input placeholder="请输入商品库存" v-model.number="formData.count">
-					<span slot="append">件</span>
-				</i-input>
-			</i-form-item>
-			<i-form-item label="商品图片" prop="imgs">
-				<upload-img></upload-img>
+			<i-form-item label="商品图片：" prop="imgs">
+				<upload-img :imgs.sync="formData.imgs"></upload-img>
 			</i-form-item>
 		</i-form>
+		<i-button type="success" class="sub">发布</i-button>
 	</div>
 </template>
 
@@ -38,10 +43,47 @@ export default {
 			tags: [],
 			formData: {
 				name: '',
-				tags: ''
+				tags: '',
+				intro: '',
+				count: 0,
+				style: [{
+					label: '',
+					count: ''
+				}],
+				price: '',
+				imgs: []
 			},
 			rules: {
+				name: [
+					{ required: true, message: '商品名称不能为空', trigger: 'blur' }
+				],
+				tags: [
+					{ required: true, message: '商品分类不能为空', trigger: 'blur' }
+				],
+				intro: [
+					{ required: true, message: '商品介绍不能为空', trigger: 'blur' }
+				],
+				price: [
+					{ required: true, type: 'number', min: 1, message: '商品价格单位为分且只能为数字', trigger: 'blur' }
+				],
+				imgs: [
+					{ required: true, type: 'array', message: '商品图片至少为一张', trigger: 'change' }
+				]
 			}
+		}
+	},
+	methods: {
+		addStyle() {
+			if (this.formData.style.length === 5) {
+				return this.$Message.error('最多只能添加5种规格')
+			}
+			this.formData.style.push({
+				label: '',
+				count: ''
+			})
+		},
+		deleteStyle(i) {
+			this.formData.style.splice(i, 1);
 		}
 	},
 	components: {
@@ -49,3 +91,33 @@ export default {
 	}
 }
 </script>
+
+<style lang="scss">
+.publishProducts {
+	width: 800px;
+	margin: 20px auto 0;
+}
+.inline {
+	display: inline-block;
+	width: 100%;
+}
+.smallInput{
+	margin-bottom: 10px;
+	&:last-child {
+		margin: 0;
+	}
+	.ivu-input-wrapper {
+		width: auto;
+	}
+}
+.formLabel {
+	display: inline-block;
+	width: 60px;
+}
+.w50 {
+	width: 40%;
+}
+.sub {
+	text-align: center;
+}
+</style>

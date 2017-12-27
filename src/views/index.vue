@@ -152,6 +152,9 @@ export default {
   height: 100%;
   width: 100%;
   .ivu-row-flex {
+		.ivu-row-flex {
+			height: calc(100% - 60px);
+		}
     .ivu-col {
       transition: all 0.3s;
     }
@@ -228,7 +231,9 @@ export default {
       }
     }
     .viewArea {
-      padding: 10px;
+			height: 100%;
+			overflow: auto;
+      padding: 10px 10px 20px;
     }
   }
 }
