@@ -1,7 +1,7 @@
 <template>
 	<div class="classify">
 		<header>
-			<i-button type="success">添加分类</i-button>
+			<i-button type="success" @click.stop="showModal = true">添加分类</i-button>
 		</header>
 		<Table :columns="columns1" :data="tagList"></Table>
 		<Modal
@@ -32,7 +32,7 @@ export default {
 				},
 				{
 					title: 'Create Time',
-					key: 'date'
+					key: 'createTime'
 				},
 				{
 					title: '操作',
@@ -58,22 +58,14 @@ export default {
 							},
 							on: {
 								click: () => {
-									this.remove(params.row.id);
+									this.remove(params.row._id);
 								}
 							}
 						}, '删除')
 					])
 				}
 			],
-			tagList: [
-				{
-					_id: 1,
-					name: 'John Brown',
-					age: 18,
-					address: 'New York No. 1 Lake Park',
-					date: '2016-10-03'
-				}
-			]
+			tagList: []
 		}
 	},
 	methods: {
@@ -81,15 +73,30 @@ export default {
 			this.showModal = false;
 		},
 		subTags() {
+			this.$store.dispatch('tags/add', this.formData).then(res => {
+				this.$Message.success(res.msg);
+				this.initData();
+			}).catch(err => {
+				this.$Message.error(err.msg);
+			})
+			this.formData.name = '';
 		},
 		edit(ojb) {
 			this.showModal = true;
 		},
 		remove(a) {
 			this.$store.dispatch('tags/remove', a).then(res => {
-				this.$Message.success(res);
+				this.$Message.success(res.msg);
 			})
+		},
+		initData() {
+			this.$store.dispatch('tags/getTags').then(() => {
+				this.tagList = this.$store.getters['tags/getTags'];
+			});
 		}
+	},
+	created() {
+		this.initData();
 	}
 }
 </script>

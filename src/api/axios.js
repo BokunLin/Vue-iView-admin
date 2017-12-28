@@ -13,8 +13,11 @@ service.interceptors.request.use(config => config, error => Promise.reject(error
 service.interceptors.response.use(
 	response => {
 		const res = response.data
-
-		if (res.code !== 2000) {
+		if (res.code === 5005) {
+			Message.error(res.msg);
+			sessionStorage.clear();
+			router.push('/');
+		} else if (res.code !== 2000) {
 			return Promise.reject(res)
 		} else {
 			return res

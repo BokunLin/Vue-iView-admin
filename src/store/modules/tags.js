@@ -1,4 +1,5 @@
 import { getTags, add, edit, remove } from '@/api/tags'
+import { format } from '@/utils/moment'
 
 const state = {
 	tags: []
@@ -9,9 +10,9 @@ const getters = {
 }
 
 const callback = ({ fn, resolve = null, reject = null }, ...rest) => new Promise((res, rej) => {
-	fn(...rest).then(res => {
-		if (resolve) resolve(res)
-		res(res)
+	fn(...rest).then(result => {
+		if (resolve) resolve(result)
+		res(result)
 	}).catch(err => {
 		if (reject) reject(err)
 		rej(err.msg)
@@ -24,14 +25,20 @@ const actions = {
 		resolve(res) {
 			commit('fillTags', res.data)
 		}
-	}, page)(),
-	addTags: ({ commit }, data) => callback({ fn: add }, data),
+	}, page),
+	add: ({ commit }, data) => callback({ fn: add }, data),
 	edit: ({ commit }, data) => callback({ fn: edit }, data),
 	remove: ({ commit }, id) => callback({ fn: remove }, id)
 }
 
 const mutations = {
-	fillTags: (state, data) => state.tags = data
+	fillTags: (state, data) => {
+		state.tags = data.map(el => {
+			el.createTime = format(el.createTime);
+			return el
+		})
+		console.log('state.tags', state.tags)
+	}
 }
 
 export default {
