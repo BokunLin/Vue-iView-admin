@@ -8,8 +8,8 @@ export function add({ name }) {
 	return axios.post('/api/admin/tags/add', { name });
 }
 
-export function edit(id) {
-	return axios.post('/api/admin/tags/remove', { id });
+export function edit(obj) {
+	return axios.post('/api/admin/tags/edit', obj);
 }
 
 export function remove(id) {

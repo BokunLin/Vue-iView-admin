@@ -8,9 +8,9 @@
 			v-model="showModal"
 			title="分类信息"
 			@on-ok="subTags"
-			@on-cancel="cancelModal">
-			<i-input v-model="formData.name">
-				<span slot="prepend">分类名称 </span>
+			@on-cancel="cancelModal"
+			@on-visible-change="cancelModal">
+			<i-input @on-enter="subTags" v-model="formData.name">
 			</i-input>
 			</i-form>
     </Modal>
@@ -69,24 +69,35 @@ export default {
 		}
 	},
 	methods: {
-		cancelModal() {
-			this.showModal = false;
+		cancelModal(e) {
+			if (!e) {
+				this.showModal = false;
+				this.formData.name = '';
+			}
 		},
 		subTags() {
-			this.$store.dispatch('tags/add', this.formData).then(res => {
+			let url = 'tags/add';
+			if (this.formData._id) {
+				url = 'tags/edit';
+			}
+			this.$store.dispatch(url, this.formData).then(res => {
 				this.$Message.success(res.msg);
+				this.formData.name = '';
 				this.initData();
 			}).catch(err => {
-				this.$Message.error(err.msg);
+				this.$Message.error(err);
+				this.formData.name = '';
 			})
-			this.formData.name = '';
+			this.showModal = false;
 		},
-		edit(ojb) {
+		edit(obj) {
+			this.formData = JSON.parse(JSON.stringify(obj));
 			this.showModal = true;
 		},
 		remove(a) {
 			this.$store.dispatch('tags/remove', a).then(res => {
 				this.$Message.success(res.msg);
+				this.initData();
 			})
 		},
 		initData() {

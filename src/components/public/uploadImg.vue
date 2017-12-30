@@ -39,14 +39,14 @@ export default {
 			percentage: 0,
 			imgName: '',
 			visible: false,
-			uploadList: this.imgs
+			uploadList: []
 		}
 	},
 	watch: {
-		uploadList: {
+		imgs: {
 			deep: true,
 			handler(val) {
-				this.$emit('update:imgs', val);
+				this.uploadList = val;
 			}
 		}
 	},
@@ -63,6 +63,7 @@ export default {
 		},
 		handleRemove(index) {
 			this.uploadList.splice(index, 1);
+			this.$emit('update:imgs', this.uploadList);
 		},
 		handleSuccess(res) {
 			if (res.code === 5005) {
@@ -71,24 +72,25 @@ export default {
 				this.$router.push('/');
 			}
 			this.uploadList.push(res);
+			this.$emit('update:imgs', this.uploadList);
 		},
 		handleFormatError(file) {
 			this.$Notice.warning({
-				title: 'The file format is incorrect',
-				desc: 'File format of ' + file.name + ' is incorrect, please select jpg or png.'
+				title: '文件格式错误',
+				desc: '只能上传 jpg 或者 png 图片！'
 			});
 		},
 		handleMaxSize(file) {
 			this.$Notice.warning({
-				title: 'Exceeding file size limit',
-				desc: 'File  ' + file.name + ' is too large, no more than 2M.'
+				title: '超出大小限制',
+				desc: '不能上传超过 2M 的图片'
 			});
 		},
 		handleBeforeUpload() {
-			const check = this.uploadList.length < 5;
+			const check = this.uploadList.length < 6;
 			if (!check) {
 				this.$Notice.warning({
-					title: 'Up to five pictures can be uploaded.'
+					title: '最多上传6张图片！'
 				});
 			}
 			return check;

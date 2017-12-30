@@ -37,7 +37,6 @@ const mutations = {
 			el.createTime = format(el.createTime);
 			return el
 		})
-		console.log('state.tags', state.tags)
 	}
 }
 

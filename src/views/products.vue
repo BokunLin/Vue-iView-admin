@@ -1,36 +1,105 @@
 <template>
 	<div class="products">
-		<Table :columns="columns1" :data="data1"></Table>
+		<i-table :loading="loading" :columns="productsCol" :data="productsData"></i-table>
+		<!-- 查看图片模态框 -->
+		<i-modal v-model="imgModal" :title="imgData.name" style="text-align: center;">
+			<img class="img" :src="item" v-for="(item, index) in imgData.imgs" :key="index">
+			<span slot="footer">
+				<i-button @click="imgModal = false" type="success">关闭</i-button>
+			</span>
+		</i-modal>
+		<!-- 查看规格库存模态框 -->
+		<i-modal v-model="styleModal" title="规格与库存" style="text-align: center;">
+			<i-table :columns="styleCol" :data="styleData"></i-table>
+			<span slot="footer">
+				<i-button @click="styleModal = false" type="success">关闭</i-button>
+			</span>
+		</i-modal>
 	</div>
 </template>
 
 <script>
+import { getProducts, edit, remove } from '@/api/products'
+import { getTags } from '@/api/tags'
 export default {
 	data() {
 		return {
-			columns1: [
+			productsCol: [
 				{
 					title: '商品图片',
-					key: 'img'
+					width: 100,
+					render: (h, params) => h('img', {
+						attrs: {
+							src: params.row.imgs[0]
+						},
+						on: {
+							click: () => {
+								this.showImgs(params.row);
+							}
+						},
+						class: ['avatar']
+					})
 				},
 				{
 					title: '商品名称',
-					key: 'name'
+					render: (h, params) => h('Tooltip', {
+						props: {
+							placement: 'bottom',
+							transfer: true
+						}
+					}, [
+						h('span', {
+							class: 'longText'
+						}, params.row.name),
+						h('div', {
+							slot: 'content',
+							style: 'white-space: normal;'
+						}, params.row.name)
+					])
+				},
+				{
+					title: '商品简介',
+					render: (h, params) => h('Tooltip', {
+						props: {
+							placement: 'bottom',
+							transfer: true
+						}
+					}, [
+						h('span', {
+							class: 'longText'
+						}, params.row.detail),
+						h('div', {
+							slot: 'content',
+							style: 'white-space: normal;'
+						}, params.row.detail)
+					])
 				},
 				{
 					title: '商品分类',
+					width: 120,
 					key: 'tags'
 				},
 				{
 					title: '商品价格',
-					key: 'price'
+					width: 120,
+					render: (h, params) => h('span', `￥${(params.row.price / 100).toFixed(2)}`)
 				},
 				{
-					title: '商品库存',
-					key: 'count'
+					title: '规格及库存',
+					width: 120,
+					render: (h, params) => h('i-button', {
+						props: {
+							type: 'primary',
+							size: 'small'
+						},
+						on: {
+							click: () => this.showStyle(params.row.style)
+						}
+					}, '查看')
 				},
 				{
 					title: '操作',
+					width: 130,
 					render: (h, params) => h('div', [
 						h('i-button', {
 							props: {
@@ -42,7 +111,7 @@ export default {
 							},
 							on: {
 								click: () => {
-									this.edit(params.index);
+									this.$router.push(`/index/productEdit/${params.row._id}`)
 								}
 							}
 						}, '编辑'),
@@ -53,22 +122,70 @@ export default {
 							},
 							on: {
 								click: () => {
-									this.remove(params.index);
+									this.remove(params.row._id);
 								}
 							}
 						}, '删除')
 					])
 				}
 			],
-			data1: [
+			productsData: [],
+			imgModal: false,
+			styleModal: false,
+			imgData: {},
+			styleCol: [
 				{
-					name: 'John Brown',
-					tags: 18,
-					price: 'New York No. 1 Lake Park',
-					count: '2016-10-03'
+					title: '规格',
+					key: 'label'
+				},
+				{
+					title: '库存',
+					key: 'count'
 				}
-			]
+			],
+			styleData: [],
+			loading: false
 		}
+	},
+	methods: {
+		remove(id) {
+			remove(id).then(res => {
+				this.$Message.success(res.msg);
+				this.initData();
+			}).catch(err => {
+				this.$Message.error(err.msg);
+			})
+		},
+		showStyle(data) {
+			this.styleData = data;
+			this.styleModal = true;
+		},
+		showImgs(data) {
+			this.imgData = {
+				name: data.name,
+				imgs: data.imgs
+			}
+			this.imgModal = true;
+		},
+		initData(page = 1) {
+			this.loading = true;
+			getTags().then(tags => {
+				getProducts(page).then(res =>	{
+					this.productsData = res.data.map(el => {
+						tags.data.forEach(tagEl => {
+							if (el.tags === tagEl._id) {
+								el.tags = tagEl.name;
+							}
+						})
+						return el;
+					})
+					this.loading = false;
+				})
+			})
+		}
+	},
+	created() {
+		this.initData();
 	}
 }
 </script>
@@ -76,5 +193,19 @@ export default {
 <style lang="scss">
 .products	{
 	width: 100%;
+	.avatar {
+		width: 50px;
+	}
+	.longText {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		display: inline-block;
+		width: 210px;
+	}
+}
+.img {
+	width: 100%;
+	margin: 0 5px;
 }
 </style>

@@ -8,7 +8,7 @@ import login from '@/views/login'
 import index from '@/views/index'
 import user from '@/views/user'
 import products from '@/views/products'
-import publishProducts from '@/views/publishProducts'
+import productEdit from '@/views/productEdit'
 import classify from '@/views/classify'
 import order from '@/views/order'
 
@@ -53,9 +53,18 @@ const router = new Router({
 					}
 				},
 				{
-					path: 'publishProducts',
-					name: 'publishProducts',
-					component: publishProducts,
+					path: 'productEdit/:id',
+					component: productEdit,
+					meta: {
+						icon: 'navigate',
+						label: '商品编辑',
+						hidden: true
+					}
+				},
+				{
+					path: 'productEdit',
+					name: 'productEdit',
+					component: productEdit,
 					meta: {
 						icon: 'navigate',
 						label: '商品发布',
