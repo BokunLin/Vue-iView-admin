@@ -15,6 +15,9 @@
 				<i-button @click="styleModal = false" type="success">关闭</i-button>
 			</span>
 		</i-modal>
+		<div class="center">
+			<Page :total="totalPage" @on-change="initData"></Page>
+		</div>
 	</div>
 </template>
 
@@ -143,6 +146,7 @@ export default {
 					key: 'count'
 				}
 			],
+			totalPage: 1,
 			styleData: [],
 			loading: false
 		}
@@ -179,6 +183,7 @@ export default {
 						})
 						return el;
 					})
+					this.totalPage = res.count;
 					this.loading = false;
 				})
 			})
@@ -202,6 +207,12 @@ export default {
 		white-space: nowrap;
 		display: inline-block;
 		width: 210px;
+	}
+	.center {
+		position: fixed;
+		padding: 10px;
+		bottom: 0;
+		width: 100%;
 	}
 }
 .img {
