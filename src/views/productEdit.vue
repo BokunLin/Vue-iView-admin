@@ -12,14 +12,14 @@
 				</i-select>
 			</i-form-item>
 			<i-form-item label="商品介绍：" prop="detail">
-				<i-input placeholder="请输入商品介绍" v-model="formData.detail" type="textarea" :autosize="{minRows: 1,maxRows: 3}"></i-input>
+				<i-input placeholder="请输入商品介绍" v-model="formData.detail" type="textarea" :autosize="{minRows: 2,maxRows: 3}"></i-input>
 			</i-form-item>
 			<i-form-item label="商品价格：" prop="price">
 				<i-input placeholder="请输入商品价格" number v-model="formData.price">
 					<span slot="append">分</span>
 				</i-input>
 			</i-form-item>
-			<i-form-item prop="style">
+			<i-form-item prop="style" class="style">
 				<div v-for="(item, index) in formData.style" :key="index" class="smallInput">
 					<span v-text="index === 0 ? ' 商品规格：' : ''" class="formLabel"></span>
 					<i-input placeholder="例如： ONE SIZE" v-model="item.label"></i-input>&nbsp;
@@ -29,7 +29,10 @@
 				</div>
 			</i-form-item>
 			<i-form-item label="商品图片：" prop="imgs">
-				<upload-img :imgs.sync="formData.imgs"></upload-img>
+				<upload-img :imgs.sync="formData.imgs" type="avatar" :maxSize="6"></upload-img>
+			</i-form-item>
+			<i-form-item label="商品轮播图：" prop="banner">
+				<upload-img :imgs.sync="formData.banner" type="banner" :maxSize="1"></upload-img>
 			</i-form-item>
 		</i-form>
 		<i-button type="success" class="sub" @click.stop="subForm" :loading="loading">发布</i-button>
@@ -53,7 +56,8 @@ export default {
 					count: ''
 				}],
 				price: '',
-				imgs: []
+				imgs: [],
+				banner: []
 			},
 			rules: {
 				name: [
@@ -62,11 +66,14 @@ export default {
 				tags: [
 					{ required: true, message: '商品分类不能为空', trigger: 'blur' }
 				],
-				intro: [
+				detail: [
 					{ required: true, message: '商品介绍不能为空', trigger: 'blur' }
 				],
 				price: [
 					{ required: true, type: 'number', min: 1, message: '商品价格单位为分且只能为数字', trigger: 'blur' }
+				],
+				banner: [
+					{ required: true, type: 'array', message: '商品轮播图不能为空', trigger: 'blur' }
 				]
 			}
 		}
@@ -85,6 +92,7 @@ export default {
 							this.loading = false;
 							this.$Message.error(err.msg);
 						})
+						this.formData.banner = this.formData.banner[0];
 						if (this.$route.params.id) {
 							pubProduct(edit, this.formData);
 						} else {
@@ -132,6 +140,7 @@ export default {
 			this.loading = true;
 			findOne(this.$route.params.id).then(res => {
 				this.formData = res.data;
+				this.formData.banner = [this.formData.banner];
 				this.loading = false;
 			}).catch(err => {
 				this.$Message.error(err.msg);
@@ -166,10 +175,10 @@ export default {
 }
 .formLabel {
 	display: inline-block;
-	width: 60px;
+	width: 80px;
 }
 .w50 {
-	width: 40%;
+	width: 45%;
 }
 .sub {
 	text-align: center;

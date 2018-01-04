@@ -23,3 +23,10 @@ export function remove(id) {
 		id
 	})
 }
+
+export function banner(id, state) {
+	return axios.post('/api/admin/products/banner', {
+		id,
+		state
+	})
+}

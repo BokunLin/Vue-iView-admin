@@ -1,6 +1,6 @@
 <template>
 	<div class="uploadImg">
-		<div class="demo-upload-list" v-for="(item, index) in uploadList" :key="item.url">
+		<div :class="type === 'avatar' ? 'demo-upload-list' : 'demo-upload-list banner'" v-for="(item, index) in uploadList" :key="item.url">
 			<Spin size="small" class="loadingIcon"></Spin>
 			<img :src="item">
 			<div class="demo-upload-list-cover">
@@ -54,6 +54,15 @@ export default {
 		imgs: {
 			type: Array,
 			required: true
+		},
+		maxSize: {
+			type: Number,
+			required: true
+		},
+		type: {
+			type: String,
+			required: false,
+			default: 'avatar'
 		}
 	},
 	methods: {
@@ -87,10 +96,10 @@ export default {
 			});
 		},
 		handleBeforeUpload() {
-			const check = this.uploadList.length < 6;
+			const check = this.uploadList.length < this.maxSize;
 			if (!check) {
 				this.$Notice.warning({
-					title: '最多上传6张图片！'
+					title: `最多上传${this.maxSize}张图片！`
 				});
 			}
 			return check;
@@ -142,5 +151,9 @@ export default {
 		font-size: 20px;
 		cursor: pointer;
 		margin: 0 2px;
+}
+.banner {
+	width: 200px;
+	height: 100px;
 }
 </style>

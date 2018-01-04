@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { getProducts, edit, remove } from '@/api/products'
+import { getProducts, edit, remove, banner } from '@/api/products'
 import { getTags } from '@/api/tags'
 export default {
 	data() {
@@ -36,11 +36,39 @@ export default {
 							src: params.row.imgs[0]
 						},
 						on: {
-							click: () => {
-								this.showImgs(params.row);
-							}
+							click: () => this.showImgs(params.row.name, params.row.imgs)
 						},
 						class: ['avatar']
+					})
+				},
+				{
+					title: '商品轮播图',
+					width: 120,
+					render: (h, params) => h('img', {
+						attrs: {
+							src: params.row.banner
+						},
+						on: {
+							click: () => this.showImgs(params.row.name, params.row.banner)
+						},
+						class: ['avatar']
+					})
+				},
+				{
+					title: '启用轮播图',
+					width: 120,
+					render: (h, params) => h('Icon', {
+						props: {
+							type: params.row.showBanner ? 'checkmark-round' : 'close-round',
+							color: params.row.showBanner ? '#19be6b' : '#ed3f14',
+							size: 20
+						},
+						class: 'bannerSwitch',
+						nativeOn: {
+							click: () => {
+								this.changeBanner(params.row._id, !params.row.showBanner);
+							}
+						}
 					})
 				},
 				{
@@ -152,6 +180,14 @@ export default {
 		}
 	},
 	methods: {
+		changeBanner(id, state) {
+			banner(id, state).then(res => {
+				this.$Message.success(res.msg);
+				this.initData();
+			}).catch(err => {
+				this.$Message.error(err.msg);
+			})
+		},
 		remove(id) {
 			remove(id).then(res => {
 				this.$Message.success(res.msg);
@@ -164,10 +200,11 @@ export default {
 			this.styleData = data;
 			this.styleModal = true;
 		},
-		showImgs(data) {
+		showImgs(name, imgs) {
+			if (typeof imgs === 'string') imgs = [imgs]
 			this.imgData = {
-				name: data.name,
-				imgs: data.imgs
+				name,
+				imgs
 			}
 			this.imgModal = true;
 		},
@@ -213,6 +250,9 @@ export default {
 		padding: 10px;
 		bottom: 0;
 		width: 100%;
+	}
+	.bannerSwitch {
+		cursor: pointer;
 	}
 }
 .img {

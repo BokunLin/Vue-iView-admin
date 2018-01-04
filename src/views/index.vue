@@ -232,6 +232,7 @@ export default {
     }
     .viewArea {
 			height: 100%;
+			min-width: 1100px;
 			overflow: auto;
       padding: 10px 10px 20px;
     }
