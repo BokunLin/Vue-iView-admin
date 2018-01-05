@@ -116,19 +116,6 @@ export default {
 					render: (h, params) => h('span', `￥${(params.row.price / 100).toFixed(2)}`)
 				},
 				{
-					title: '规格及库存',
-					width: 120,
-					render: (h, params) => h('i-button', {
-						props: {
-							type: 'primary',
-							size: 'small'
-						},
-						on: {
-							click: () => this.showStyle(params.row.style)
-						}
-					}, '查看')
-				},
-				{
 					title: '操作',
 					width: 130,
 					render: (h, params) => h('div', [
@@ -195,10 +182,6 @@ export default {
 			}).catch(err => {
 				this.$Message.error(err.msg);
 			})
-		},
-		showStyle(data) {
-			this.styleData = data;
-			this.styleModal = true;
 		},
 		showImgs(name, imgs) {
 			if (typeof imgs === 'string') imgs = [imgs]

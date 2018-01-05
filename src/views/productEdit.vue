@@ -14,19 +14,8 @@
 			<i-form-item label="商品介绍：" prop="detail">
 				<i-input placeholder="请输入商品介绍" v-model="formData.detail" type="textarea" :autosize="{minRows: 2,maxRows: 3}"></i-input>
 			</i-form-item>
-			<i-form-item label="商品价格：" prop="price">
-				<i-input placeholder="请输入商品价格" number v-model="formData.price">
-					<span slot="append">分</span>
-				</i-input>
-			</i-form-item>
-			<i-form-item prop="style" class="style">
-				<div v-for="(item, index) in formData.style" :key="index" class="smallInput">
-					<span v-text="index === 0 ? ' 商品规格：' : ''" class="formLabel"></span>
-					<i-input placeholder="例如： ONE SIZE" v-model="item.label"></i-input>&nbsp;
-					<span v-text="index === 0 ? ' 商品库存：' : ''" class="formLabel"></span> <i-input placeholder="请输入商品库存" v-model="item.count"></i-input>
-					<i-button @click.stop="addStyle" v-if="index === formData.style.length - 1 && index !== 4">添加规格</i-button>
-					<i-button v-if="index !== 0" @click="deleteStyle(index)"> 删除</i-button>
-				</div>
+			<i-form-item label="商品价格(分)：" prop="price">
+				<i-input placeholder="请输入商品价格" number v-model="formData.price"></i-input>
 			</i-form-item>
 			<i-form-item label="商品图片：" prop="imgs">
 				<upload-img :imgs.sync="formData.imgs" type="avatar" :maxSize="6"></upload-img>
@@ -51,10 +40,6 @@ export default {
 				name: '',
 				tags: '',
 				detail: '',
-				style: [{
-					label: '',
-					count: ''
-				}],
 				price: '',
 				imgs: [],
 				banner: []
@@ -82,52 +67,26 @@ export default {
 		subForm() {
 			this.$refs.products.validate(valid => {
 				if (valid) {
-					if (this.checkStyle()) {
-						this.loading = true;
-						//* 商品发布
-						const pubProduct = (fn, ...rest) => fn(...rest).then(res => {
-							this.$Message.success(res.msg);
-							this.$router.push('/index/products');
-						}).catch(err => {
-							this.loading = false;
-							this.$Message.error(err.msg);
-						})
-						this.formData.banner = this.formData.banner[0];
-						if (this.$route.params.id) {
-							pubProduct(edit, this.formData);
-						} else {
-							pubProduct(publish, this.formData);
-						}
+					this.loading = true;
+					//* 商品发布
+					const pubProduct = (fn, ...rest) => fn(...rest).then(res => {
+						this.$Message.success(res.msg);
+						this.$router.push('/index/products');
+					}).catch(err => {
+						this.loading = false;
+						this.$Message.error(err.msg);
+					})
+					const formData = JSON.parse(JSON.stringify(this.formData));
+					formData.banner = formData.banner[0]
+					if (this.$route.params.id) {
+						pubProduct(edit, formData);
+					} else {
+						pubProduct(publish, formData);
 					}
 				} else {
 					this.$Message.error('请完善所有信息!');
 				}
 			})
-		},
-		checkStyle() {
-			for (let i = 0; i < this.formData.style.length; i++) {
-				if (this.formData.style[i].label === '' || this.formData.style[i].count === '') {
-					this.$Message.error('请完善规格信息！');
-					return false;
-				}
-			}
-			if (this.formData.imgs.length < 1) {
-				this.$Message.error('请至少上传一张图片！');
-				return false;
-			}
-			return true;
-		},
-		addStyle() {
-			if (this.formData.style.length === 6) {
-				return this.$Message.error('最多只能添加6种规格')
-			}
-			this.formData.style.push({
-				label: '',
-				count: ''
-			})
-		},
-		deleteStyle(i) {
-			this.formData.style.splice(i, 1);
 		},
 		loadTags() {
 			this.$store.dispatch('tags/getTags').then(() => {
@@ -139,8 +98,8 @@ export default {
 		if (this.$route.params.id) {
 			this.loading = true;
 			findOne(this.$route.params.id).then(res => {
+				res.data.banner = [res.data.banner];
 				this.formData = res.data;
-				this.formData.banner = [this.formData.banner];
 				this.loading = false;
 			}).catch(err => {
 				this.$Message.error(err.msg);

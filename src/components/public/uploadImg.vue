@@ -46,6 +46,7 @@ export default {
 		imgs: {
 			deep: true,
 			handler(val) {
+				if (typeof val === 'string') console.log(val);
 				this.uploadList = val;
 			}
 		}
