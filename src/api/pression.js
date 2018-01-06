@@ -1,9 +1,9 @@
 import axios from './axios';
 
 export function login({ name, pw, isSignup }) {
-	let url = '/api/admin/user/login';
+	let url = '/admin/user/login';
 	if (isSignup) {
-		url = '/api/admin/user/signup';
+		url = '/admin/user/signup';
 	}
 	return axios.post(url, {
 		name,
@@ -12,5 +12,5 @@ export function login({ name, pw, isSignup }) {
 }
 
 export function checkLogin(user) {
-	return axios.post('/api/admin/user/checkLogin', { user });
+	return axios.post('/admin/user/checkLogin', { user });
 }

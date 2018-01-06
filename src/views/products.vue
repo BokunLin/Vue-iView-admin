@@ -195,6 +195,7 @@ export default {
 			this.loading = true;
 			getTags().then(tags => {
 				getProducts(page).then(res =>	{
+					console.log('res', res)
 					this.productsData = res.data.map(el => {
 						tags.data.forEach(tagEl => {
 							if (el.tags === tagEl._id) {

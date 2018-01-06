@@ -19,7 +19,7 @@
 				:before-upload="handleBeforeUpload"
 				multiple
 				type="drag"
-				action="/api/admin/uploadImg"
+				action="/admin/uploadImg"
 				style="display: inline-block; width: 58px;">
 				<div style="width: 58px;height:58px;line-height: 58px;">
 						<Icon type="camera" size="20"></Icon>
