@@ -195,7 +195,6 @@ export default {
 			this.loading = true;
 			getTags().then(tags => {
 				getProducts(page).then(res =>	{
-					console.log('res', res)
 					this.productsData = res.data.map(el => {
 						tags.data.forEach(tagEl => {
 							if (el.tags === tagEl._id) {
@@ -230,6 +229,7 @@ export default {
 		width: 210px;
 	}
 	.center {
+		background-color: #fff;
 		position: fixed;
 		padding: 10px;
 		bottom: 0;

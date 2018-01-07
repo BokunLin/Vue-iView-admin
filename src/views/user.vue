@@ -1,60 +1,69 @@
 <template>
 	<div class="user">
-		<Table :columns="columns1" :data="data1"></Table>
+		<Table :columns="columns1" :data="userData"></Table>
+		<div class="center">
+			<Page :total="total" @on-change="initData"></Page>
+		</div>
 	</div>
 </template>
 
 <script>
-    export default {
-    	data() {
-    		return {
-    			columns1: [
-    				{
-    					title: 'Name',
-    					key: 'name'
-    				},
-    				{
-    					title: 'Age',
-    					key: 'age'
-    				},
-    				{
-    					title: 'Address',
-    					key: 'address'
-    				}
-    			],
-    			data1: [
-    				{
-    					name: 'John Brown',
-    					age: 18,
-    					address: 'New York No. 1 Lake Park',
-    					date: '2016-10-03'
-    				},
-    				{
-    					name: 'Jim Green',
-    					age: 24,
-    					address: 'London No. 1 Lake Park',
-    					date: '2016-10-01'
-    				},
-    				{
-    					name: 'Joe Black',
-    					age: 30,
-    					address: 'Sydney No. 1 Lake Park',
-    					date: '2016-10-02'
-    				},
-    				{
-    					name: 'Jon Snow',
-    					age: 26,
-    					address: 'Ottawa No. 2 Lake Park',
-    					date: '2016-10-04'
-    				}
-    			]
-    		}
-    	}
-    }
+import { getUser, remove } from '@/api/user';
+import { format } from '@/utils/moment'
+export default {
+	data() {
+		return {
+			columns1: [
+				{
+					title: 'Name',
+					key: 'name'
+				},
+				{
+					title: 'Nick',
+					key: 'nick'
+				},
+				{
+					title: 'createTime',
+					render: (h, params) => h('span', format(params.row.createTime))
+				},
+				{
+					title: 'contorl',
+					render: (h, params) => h('Button', {
+						props: {
+							type: 'error',
+							size: 'small'
+						},
+						nativeOn: {
+							click: () => {
+								remove(params.row._id).then(res => {
+									this.$Message.success(res.data.msg);
+									this.initData();
+								})
+							}
+						}
+					}, '删除')
+				}
+			],
+			userData: [],
+			total: 1
+		};
+	},
+	methods: {
+		initData(page = 1) {
+			getUser(page).then(res => {
+				this.total = res.data.total
+				this.userData = res.data.data;
+			})
+		}
+	},
+	created() {
+		this.initData();
+	}
+};
 </script>
 
 <style lang="scss">
-.user	{
-	width: 100%;
+.user {
+  width: 100%;
 }
 </style>

@@ -97,7 +97,7 @@ $bgColor: #2d3a4b;
 .login {
   width: 100%;
   height: 100%;
-  background: $bgColor url("/static/login_bg.jpg") 0 0/cover no-repeat;
+  background: $bgColor url("/admin/login_bg.jpg") 0 0/cover no-repeat;
   h2 {
     margin-bottom: 20px;
   }

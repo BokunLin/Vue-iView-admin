@@ -14,3 +14,7 @@ export function login({ name, pw, isSignup }) {
 export function checkLogin(user) {
 	return axios.post('/admin/user/checkLogin', { user });
 }
+
+export function loginOut() {
+	return axios.get('/admin/user/loginOut')
+}

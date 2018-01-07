@@ -2,7 +2,7 @@
 	<div class="index">
 		<i-row type="flex" class="index">
 			<!-- 左边部分 -->
-			<i-col :span="spanLeft" class="navBar">
+			<i-col :span="spanLeft" class="navBar" >
 				<i-menu theme="dark" :active-name="menuActiveName" width="auto" @on-select="jumpRoute">
 					<!-- logo -->
 					<div class="logo">
@@ -32,15 +32,15 @@
 					<tag-pages :tagsActive.sync="tagsActive" :tags="tags"></tag-pages>
 					<!-- 头像 -->
 					<span class="avatar">
-						<i-dropdown placement="bottom">
-							<a>
+						<Dropdown transfer>
+							<Button type="text" size="small" style="font-size:14px">
 								{{username}}
 								<Icon type="arrow-down-b"></Icon>
-							</a>
-							<i-dropdown-menu slot="list" size="large">
-								<i-dropdown-item @click="loginOut">退出登录</i-dropdown-item>
-							</i-dropdown-menu>
-						</i-dropdown>
+							</Button>
+							<DropdownMenu slot="list" size="large">
+								<DropdownItem @click.native="cancelLogin">退出登录</DropdownItem>
+							</DropdownMenu>
+						</Dropdown>
 						<i-avatar size="large" src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
 					</span>
 				</div>
@@ -57,6 +57,7 @@
 	</div>
 </template>
 <script>
+import { loginOut } from '@/api/pression'
 import tagPages from '@/components/index/tagPages'
 export default {
 	data() {
@@ -120,8 +121,12 @@ export default {
 			return this.$route.path.substr(7) === path ? 'blue' : 'default';
 		},
 		//* 退出登录
-		loginOut() {
-			alert(123);
+		cancelLogin() {
+			loginOut().then(res => {
+				sessionStorage.clear();
+				this.$Message.success(res.msg);
+				this.$router.push('/');
+			})
 		},
 		//* 跳转路由
 		jumpRoute(routeName) {
@@ -150,6 +155,7 @@ export default {
 <style lang='scss'>
 .index {
   height: 100%;
+	min-width: 1366px;
   width: 100%;
   .ivu-row-flex {
 		.ivu-row-flex {
@@ -237,5 +243,12 @@ export default {
       padding: 10px 10px 20px;
     }
   }
+}
+.center {
+	background-color: #fff;
+	position: fixed;
+	padding: 10px;
+	bottom: 0;
+	width: 100%;
 }
 </style>
