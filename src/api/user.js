@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axios from './axios';
 
 export function getUser(page) {
-	return axios.get('/admin/user', { params: { page } });
+	return axios.get('/api/admin/user', { params: { page } });
 }
 
 export function remove(id) {
-	return axios.post('/admin/user', { id });
+	return axios.post('/api/admin/user', { id });
 }
 
 export function findUser(id) {
-	return axios.get('/admin/user/find', { params: { id } })
+	return axios.get('/api/admin/user/find', { params: { id } })
 }

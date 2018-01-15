@@ -51,8 +51,9 @@ export default {
 	methods: {
 		initData(page = 1) {
 			getUser(page).then(res => {
-				this.total = res.data.total
-				this.userData = res.data.data;
+				console.log('res', res)
+				this.total = res.count;
+				this.userData = res.data;
 			})
 		}
 	},

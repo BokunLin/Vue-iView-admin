@@ -40,7 +40,7 @@ export default {
 								nativeOn: {
 									click: () => {
 										getAddress(params.row.address).then(res => {
-											this.addressData = [res.data.address];
+											this.addressData = [res.address];
 											this.addressVisible = true;
 										});
 									}
@@ -67,7 +67,7 @@ export default {
 								nativeOn: {
 									click: () => {
 										getSnapShoot(params.row.snapShoot).then(res => {
-											this.snapData = res.data.data;
+											this.snapData = res.data;
 											this.snapVisible = true;
 										});
 									}
@@ -99,12 +99,13 @@ export default {
 			snapColumns: [
 				{
 					title: '商品图片',
-					render: (h, params) => h('img', {
-						attrs: {
-							src: params.row.img
-						},
-						style: 'width: 50px;'
-					})
+					render: (h, params) =>
+						h('img', {
+							attrs: {
+								src: params.row.img
+							},
+							style: 'width: 50px;'
+						})
 				},
 				{
 					title: '商品名称',
@@ -112,7 +113,8 @@ export default {
 				},
 				{
 					title: '商品单价',
-					render: (h, params) => h('span', '￥' + (params.row.price / 100).toFixed(2))
+					render: (h, params) =>
+						h('span', '￥' + (params.row.price / 100).toFixed(2))
 				},
 				{
 					title: '商品数量',
@@ -120,7 +122,11 @@ export default {
 				},
 				{
 					title: '商品总价',
-					render: (h, params) => h('span', '￥' + (params.row.price * params.row.count / 100).toFixed(2))
+					render: (h, params) =>
+						h(
+							'span',
+							'￥' + (params.row.price * params.row.count / 100).toFixed(2)
+						)
 				}
 			],
 			addressColumns: [
@@ -153,20 +159,16 @@ export default {
 	methods: {
 		removeOrder(id) {
 			remove(id).then(res => {
-				this.$Message.success(res.data.msg);
+				this.$Message.success(res.msg);
 				this.initData();
-			})
+			});
 		},
 		initData(page = 1) {
 			this.loading = true;
 			getOrder(page).then(res => {
-				this.total = res.data.count;
-				this.formData = res.data.data;
-				Promise.all(this.formData.map(item => findUser(item.user).then(user => {
-					item.user = user.data.data ? user.data.data.name : '不存在';
-				}))).then(() => {
-					this.loading = false
-				});
+				this.total = res.count;
+				this.formData = res.data;
+				this.loading = false;
 			});
 		}
 	},
@@ -204,10 +206,10 @@ export default {
   border-right: 1px solid #ddd;
 }
 .center {
-	background-color: #fff;
-	position: fixed;
-	padding: 10px;
-	bottom: 0;
-	width: 100%;
+  background-color: #fff;
+  position: fixed;
+  padding: 10px;
+  bottom: 0;
+  width: 100%;
 }
 </style>

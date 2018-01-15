@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios';
 import { Message } from 'iview';
 import router from '@/router';
 
@@ -12,7 +12,7 @@ service.interceptors.request.use(config => config, error => Promise.reject(error
 // respone拦截器
 service.interceptors.response.use(
 	response => {
-		const res = response.data
+		const res = response.data;
 		if (res.code === 5005) {
 			Message.error(res.msg);
 			sessionStorage.clear();
